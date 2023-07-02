@@ -22,5 +22,5 @@ module.exports = (sequelize, DataTypes) => {
         sequelize,
         modelName: 'Talent_Skills',
     });
-    return Skills;
+    return Talent_Skills;
 };
