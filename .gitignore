@@ -1,1 +1,11 @@
-/node_modules
+# Ignore specific files
+filename.txt
+
+# Ignore a directory
+node_modules/
+
+# Ignore files with a specific extension
+*.log
+
+# Ignore all files within a directory
+temp/*
