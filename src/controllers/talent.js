@@ -73,6 +73,54 @@ exports.post = async (req, res) => {
   }
 };
 
+exports.edit = async (req, res) => {
+  try {
+    const reqBody = req.body;
+    const talentId = req.params.id;
+
+    let image, cv;
+
+    if (req.files && req.files.talent_image_path) {
+      const talentImage = req.files.talent_image_path[0];
+      image = req.protocol + "://" + req.get("host") + "/" + talentImage.path;
+    }
+
+    if (req.files && req.files.cv_file_path) {
+      const cvFile = req.files.cv_file_path[0];
+      cv = req.protocol + "://" + req.get("host") + "/" + cvFile.path;
+    }
+
+    const talent = await Talent.findByPk(talentId);
+
+    if (!talent) {
+      return res.status(404).send({
+        msg: "Talent not found",
+      });
+    }
+
+    // Update the talent data
+    talent.talent_name = reqBody.talent_name;
+    talent.talent_image_path = image;
+    talent.talent_summary = reqBody.talent_summary;
+    talent.work_since = reqBody.work_since;
+    talent.education = reqBody.education;
+    talent.cv_file_path = cv;
+    talent.working_status = reqBody.working_status;
+
+    await talent.save();
+
+    res.status(200).send({
+      msg: "OK",
+      data: talent,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({
+      msg: "Internal Server Error",
+    });
+  }
+};
+
 exports.delete = async (req, res) => {
   try {
     const id = await Talent.findOne({

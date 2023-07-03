@@ -13,5 +13,13 @@ router.post(
   ]),
   controller.post
 );
+router.put(
+  "/edit/:id",
+  upload.fields([
+    { name: "talent_image_path", maxCount: 1 },
+    { name: "cv_file_path", maxCount: 1 },
+  ]),
+  controller.edit
+);
 router.delete("/delete/:id", controller.delete);
 module.exports = router;
