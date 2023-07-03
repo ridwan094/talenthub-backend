@@ -11,9 +11,11 @@ app.use("/asset", express.static("asset"));
 
 const auth = require("./src/routes/auth");
 const talent = require("./src/routes/talent");
+const skill = require("./src/routes/skill");
 
 app.use(`/auth`, auth);
 app.use("/talent", talent);
+app.use("/skill/", skill);
 
 // Route utama
 // app.get("/", (req, res) => {
