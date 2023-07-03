@@ -64,15 +64,14 @@ exports.login = async (req, res) => {
     res.status(200).send({
       status: 200,
       msg: `OK`,
-      token: accessToken
-    })
-
+      token: accessToken,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send({
       status: 500,
-      msg: `Internal Server Error`
-    })
+      msg: `Internal Server Error`,
+    });
   }
 };
 
@@ -80,9 +79,10 @@ exports.register = async (req, res) => {
   try {
     const body = req.body;
     const schema = joi.object({
+      fullname: joi.string().required(),
       email: joi.string().email().required(),
-      password: joi.string().min(8).required()
-    })
+      password: joi.string().min(8).required(),
+    });
 
     const { error } = schema.validate(body);
 
@@ -109,6 +109,7 @@ exports.register = async (req, res) => {
     const encrypt = await bcrypt.hash(body.password, 12);
 
     const newUser = await users.create({
+      fullname: body.fullname,
       email: body.email,
       password: encrypt,
       role: "user",
@@ -119,7 +120,6 @@ exports.register = async (req, res) => {
       msg: `OK`,
       data: newUser,
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).send({
@@ -127,4 +127,4 @@ exports.register = async (req, res) => {
       msg: `Internal Server Error`,
     });
   }
-}
+};
