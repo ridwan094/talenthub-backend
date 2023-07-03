@@ -15,6 +15,25 @@ exports.get = async (req, res) => {
   }
 };
 
+exports.getById = async (req, res) => {
+  try {
+    const talents = await Talent.findOne({
+      where: {
+        id: req.params.id,
+      },
+    });
+    res.status(200).send({
+      msg: "OK",
+      data: talents,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({
+      msg: "Internal Server Error",
+    });
+  }
+};
+
 exports.post = async (req, res) => {
   try {
     const reqBody = req.body;

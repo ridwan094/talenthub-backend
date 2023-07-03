@@ -4,6 +4,7 @@ const controller = require("../controllers/talent");
 const { upload, fileUpload } = require("../middleware/uploadFile");
 
 router.get("/", controller.get);
+router.get("/:id", controller.getById);
 router.post(
   "/store",
   upload.fields([
