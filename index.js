@@ -10,11 +10,13 @@ app.use(express.json());
 
 app.use("/asset", express.static("asset"));
 
+const clients = require("./src/routes/clients");
 const auth = require("./src/routes/auth");
 const talent = require("./src/routes/talent");
 const skill = require("./src/routes/skill");
 const talent_skill = require("./src/routes/talentSkill");
 
+app.use("/clients/", clients);
 app.use(`/auth`, auth);
 app.use("/talent", talent);
 app.use("/skill", skill);
