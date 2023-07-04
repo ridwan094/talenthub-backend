@@ -5,7 +5,9 @@ const fs = require("fs");
 
 exports.get = async (req, res) => {
   try {
-    const talents = await Talent.findAll();
+    const talents = await Talent.findAll({
+      include: 'Skill'
+    });
     res.status(200).send({
       msg: "OK",
       data: talents,
