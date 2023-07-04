@@ -5,6 +5,7 @@ const { upload, fileUpload } = require("../middleware/uploadFile");
 
 router.get("/", controller.get);
 router.get("/:id", controller.getById);
+router.get("/:id/download", controller.download);
 router.post(
   "/store",
   upload.fields([
@@ -22,4 +23,5 @@ router.put(
   controller.edit
 );
 router.delete("/delete/:id", controller.delete);
+
 module.exports = router;
