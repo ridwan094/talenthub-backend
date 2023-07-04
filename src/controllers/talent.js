@@ -1,4 +1,7 @@
 const { Talent } = require("../../models");
+const path = require("path");
+const fs = require("fs");
+// const PDFDocument = require("pdfkit");
 
 exports.get = async (req, res) => {
   try {
@@ -42,12 +45,23 @@ exports.post = async (req, res) => {
 
     if (req.files && req.files.talent_image_path) {
       const talentImage = req.files.talent_image_path[0];
-      image = req.protocol + "://" + req.get("host") + "/" + talentImage.path;
+      image =
+        req.protocol +
+        "://" +
+        req.get("host") +
+        "/" +
+        talentImage.path.replace(/\\/g, "/");
     }
 
     if (req.files && req.files.cv_file_path) {
       const cvFile = req.files.cv_file_path[0];
-      cv = req.protocol + "://" + req.get("host") + "/" + cvFile.path;
+      // cv =
+      //   req.protocol +
+      //   "://" +
+      //   req.get("host") +
+      //   "/" +
+      //   cvFile.path.replace(/\\/g, "/");
+      cv = cvFile.path.replace(/\\/g, "/");
     }
 
     const save = await Talent.create({
@@ -82,12 +96,23 @@ exports.edit = async (req, res) => {
 
     if (req.files && req.files.talent_image_path) {
       const talentImage = req.files.talent_image_path[0];
-      image = req.protocol + "://" + req.get("host") + "/" + talentImage.path;
+      image =
+        req.protocol +
+        "://" +
+        req.get("host") +
+        "/" +
+        talentImage.path.replace(/\\/g, "/");
     }
 
     if (req.files && req.files.cv_file_path) {
       const cvFile = req.files.cv_file_path[0];
-      cv = req.protocol + "://" + req.get("host") + "/" + cvFile.path;
+      // cv =
+      //   req.protocol +
+      //   "://" +
+      //   req.get("host") +
+      //   "/" +
+      //   cvFile.path.replace(/\\/g, "/");
+      cv = cvFile.path.replace(/\\/g, "/");
     }
 
     const talent = await Talent.findByPk(talentId);
@@ -112,6 +137,36 @@ exports.edit = async (req, res) => {
     res.status(200).send({
       msg: "OK",
       data: talent,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({
+      msg: "Internal Server Error",
+    });
+  }
+};
+
+exports.download = async (req, res) => {
+  try {
+    const talentId = req.params.id;
+    const talent = await Talent.findByPk(talentId);
+
+    if (!talent) {
+      return res.status(404).send({
+        msg: "Talent not found",
+      });
+    }
+
+    const filePath = talent.cv_file_path;
+    const fileName = path.basename(filePath);
+
+    res.download(filePath, fileName, (err) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send({
+          msg: "Error downloading the file",
+        });
+      }
     });
   } catch (err) {
     console.error(err);
@@ -146,3 +201,57 @@ exports.delete = async (req, res) => {
     });
   } catch (err) {}
 };
+
+// exports.downloadPDF = async (req, res) => {
+//   try {
+//     const talentId = req.params.id;
+
+//     const talent = await Talent.findByPk(talentId);
+
+//     if (!talent || !talent.cv_file_path) {
+//       return res.status(404).send({
+//         msg: "CV file not found on server",
+//       });
+//     }
+
+//     const cvFilePath = talent.cv_file_path;
+//     const fileName = path.basename(cvFilePath);
+
+//     res.download(cvFilePath, fileName, (err) => {
+//       if (err) {
+//         console.error(err);
+//         res.status(500).send({
+//           msg: "Internal Server Error",
+//         });
+//       }
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send({
+//       msg: "Internal Server Error",
+//     });
+//   }
+// };
+
+// exports.downloadPDF = async (req, res) => {
+//   try {
+//     const talentId = req.params.id;
+
+//     const talent = await Talent.findByPk(talentId);
+
+//     if (!talent || !talent.cv_file_path) {
+//       return res.status(404).send({
+//         msg: "Talent or PDF file not found",
+//       });
+//     }
+
+//     const filePath = path.join(__dirname, "../../", talent.cv_file_path);
+
+//     res.sendFile(filePath);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send({
+//       msg: "Internal Server Error",
+//     });
+//   }
+// };

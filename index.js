@@ -3,6 +3,7 @@ const cors = require("cors");
 
 const app = express();
 const port = 3000;
+const ip = "192.168.18.137";
 
 app.use(cors());
 app.use(express.json());
@@ -12,10 +13,12 @@ app.use("/asset", express.static("asset"));
 const auth = require("./src/routes/auth");
 const talent = require("./src/routes/talent");
 const skill = require("./src/routes/skill");
+const talent_skill = require("./src/routes/talentSkill");
 
 app.use(`/auth`, auth);
 app.use("/talent", talent);
-app.use("/skill/", skill);
+app.use("/skill", skill);
+app.use("/talent_skill", talent_skill);
 
 // Route utama
 // app.get("/", (req, res) => {
@@ -23,6 +26,6 @@ app.use("/skill/", skill);
 // });
 
 // Jalankan server
-app.listen(port, () => {
-  console.log(`Server berjalan di http://localhost:${port}`);
+app.listen(port, ip, () => {
+  console.log(`Server berjalan di http://localhost:${port} ${ip}`);
 });
