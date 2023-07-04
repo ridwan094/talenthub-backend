@@ -85,11 +85,16 @@ exports.edit = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    await Skills.destroy({
+    const del = await Skills.destroy({
       where: {
         id: req.params.id,
       },
     });
+    if (!del) {
+      return res.status(404).send({
+        msg: "data not found!",
+      });
+    }
     res.status(200).send({
       msg: "OK!",
     });

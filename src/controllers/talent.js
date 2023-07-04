@@ -1,11 +1,13 @@
-const { Talent } = require("../../models");
+const { Talent, Skill } = require("../../models");
 const path = require("path");
 const fs = require("fs");
 // const PDFDocument = require("pdfkit");
 
 exports.get = async (req, res) => {
   try {
-    const talents = await Talent.findAll();
+    const talents = await Talent.findAll({
+      include: Skill,
+    });
     res.status(200).send({
       msg: "OK",
       data: talents,
@@ -25,6 +27,12 @@ exports.getById = async (req, res) => {
         id: req.params.id,
       },
     });
+
+    if (!talents) {
+      return res.status(404).send({
+        msg: "data not found!",
+      });
+    }
     res.status(200).send({
       msg: "OK",
       data: talents,
@@ -201,57 +209,3 @@ exports.delete = async (req, res) => {
     });
   } catch (err) {}
 };
-
-// exports.downloadPDF = async (req, res) => {
-//   try {
-//     const talentId = req.params.id;
-
-//     const talent = await Talent.findByPk(talentId);
-
-//     if (!talent || !talent.cv_file_path) {
-//       return res.status(404).send({
-//         msg: "CV file not found on server",
-//       });
-//     }
-
-//     const cvFilePath = talent.cv_file_path;
-//     const fileName = path.basename(cvFilePath);
-
-//     res.download(cvFilePath, fileName, (err) => {
-//       if (err) {
-//         console.error(err);
-//         res.status(500).send({
-//           msg: "Internal Server Error",
-//         });
-//       }
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send({
-//       msg: "Internal Server Error",
-//     });
-//   }
-// };
-
-// exports.downloadPDF = async (req, res) => {
-//   try {
-//     const talentId = req.params.id;
-
-//     const talent = await Talent.findByPk(talentId);
-
-//     if (!talent || !talent.cv_file_path) {
-//       return res.status(404).send({
-//         msg: "Talent or PDF file not found",
-//       });
-//     }
-
-//     const filePath = path.join(__dirname, "../../", talent.cv_file_path);
-
-//     res.sendFile(filePath);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send({
-//       msg: "Internal Server Error",
-//     });
-//   }
-// };
