@@ -3,7 +3,7 @@ const cors = require("cors");
 
 const app = express();
 const port = 3000;
-const ip = "192.168.18.137";
+// const ip = "192.168.18.137";
 
 app.use(cors());
 app.use(express.json());
@@ -30,6 +30,6 @@ app.use("/seniority", seniority);
 // });
 
 // Jalankan server
-app.listen(port, ip, () => {
-  console.log(`Server berjalan di http://localhost:${port} ${ip}`);
+app.listen(port, () => {
+  console.log(`Server berjalan di http://localhost:${port}`);
 });
