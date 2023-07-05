@@ -1,13 +1,34 @@
-const { Talent } = require("../../models");
+const { Talent, Skill } = require("../../models");
 const path = require("path");
 const fs = require("fs");
 // const PDFDocument = require("pdfkit");
 
+// Fungsi untuk menghapus file gambar
+function deleteImage(imagePath) {
+  if (fs.existsSync(imagePath)) {
+    fs.unlinkSync(imagePath);
+    console.log("Gambar lama dihapus:", imagePath);
+  } else {
+    console.log("Gambar lama tidak ditemukan:", imagePath);
+  }
+}
+
+// Fungsi untuk menghapus file CV
+function deleteCV(cvPath) {
+  if (fs.existsSync(cvPath)) {
+    fs.unlinkSync(cvPath);
+    console.log("CV lama dihapus:", cvPath);
+  } else {
+    console.log("CV lama tidak ditemukan:", cvPath);
+  }
+}
+
 exports.get = async (req, res) => {
   try {
     const talents = await Talent.findAll({
-      include: 'Skill'
+      include: "skill",
     });
+
     res.status(200).send({
       msg: "OK",
       data: talents,
@@ -23,10 +44,18 @@ exports.get = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const talents = await Talent.findOne({
+      include: "skill",
       where: {
         id: req.params.id,
       },
     });
+
+    if (!talents) {
+      return res.status(404).send({
+        msg: "data not found!",
+      });
+    }
+
     res.status(200).send({
       msg: "OK",
       data: talents,
@@ -57,13 +86,13 @@ exports.post = async (req, res) => {
 
     if (req.files && req.files.cv_file_path) {
       const cvFile = req.files.cv_file_path[0];
-      // cv =
-      //   req.protocol +
-      //   "://" +
-      //   req.get("host") +
-      //   "/" +
-      //   cvFile.path.replace(/\\/g, "/");
-      cv = cvFile.path.replace(/\\/g, "/");
+      cv =
+        req.protocol +
+        "://" +
+        req.get("host") +
+        "/" +
+        cvFile.path.replace(/\\/g, "/");
+      // cv = cvFile.path.replace(/\\/g, "/");
     }
 
     const save = await Talent.create({
@@ -108,13 +137,12 @@ exports.edit = async (req, res) => {
 
     if (req.files && req.files.cv_file_path) {
       const cvFile = req.files.cv_file_path[0];
-      // cv =
-      //   req.protocol +
-      //   "://" +
-      //   req.get("host") +
-      //   "/" +
-      //   cvFile.path.replace(/\\/g, "/");
-      cv = cvFile.path.replace(/\\/g, "/");
+      cv =
+        req.protocol +
+        "://" +
+        req.get("host") +
+        "/" +
+        cvFile.path.replace(/\\/g, "/");
     }
 
     const talent = await Talent.findByPk(talentId);
@@ -125,7 +153,37 @@ exports.edit = async (req, res) => {
       });
     }
 
-    // Update the talent data
+    // Menghapus gambar lama jika ada gambar baru yang diunggah
+    if (image && talent.talent_image_path) {
+      const oldImagePath = path.join(
+        __dirname,
+        "/asset/img",
+        getImageName(talent.talent_image_path)
+      );
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+        console.log("Gambar lama dihapus:", oldImagePath);
+      } else {
+        console.log("Gambar lama tidak ditemukan:", oldImagePath);
+      }
+    }
+
+    // Menghapus CV lama jika ada CV baru yang diunggah
+    if (cv && talent.cv_file_path) {
+      const oldCVPath = path.join(
+        __dirname,
+        "/asset/img",
+        getCVName(talent.cv_file_path)
+      );
+      if (fs.existsSync(oldCVPath)) {
+        fs.unlinkSync(oldCVPath);
+        console.log("CV lama dihapus:", oldCVPath);
+      } else {
+        console.log("CV lama tidak ditemukan:", oldCVPath);
+      }
+    }
+
+    // Update data talent
     talent.talent_name = reqBody.talent_name;
     talent.talent_image_path = image;
     talent.talent_summary = reqBody.talent_summary;
@@ -147,6 +205,18 @@ exports.edit = async (req, res) => {
     });
   }
 };
+
+// Mendapatkan nama gambar dari URL
+function getImageName(url) {
+  const parts = url.split("/");
+  return parts[parts.length - 1];
+}
+
+// Mendapatkan nama CV dari URL
+function getCVName(url) {
+  const parts = url.split("/");
+  return parts[parts.length - 1];
+}
 
 exports.download = async (req, res) => {
   try {
@@ -180,80 +250,50 @@ exports.download = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    const id = await Talent.findOne({
-      where: {
-        id: req.params.id,
-      },
-    });
-
-    if (!id) {
+    const talentId = req.params.id;
+    const talent = await Talent.findByPk(talentId);
+    if (!talent) {
       return res.status(404).send({
-        msg: "not found!",
+        msg: "Talent not found",
       });
     }
 
-    let del = await Talent.destroy({
+    const image = talent.talent_image_path;
+    const cv = talent.cv_file_path;
+
+    console.log("berak: ", image);
+
+    // Menghapus gambar lama jika ada gambar baru yang diunggah
+    if (image) {
+      const oldImagePath = path.join(
+        __dirname,
+        "../../asset/img",
+        getImageName(image)
+      );
+
+      deleteImage(oldImagePath);
+    }
+
+    // Menghapus CV lama jika ada CV baru yang diunggah
+    if (cv) {
+      const oldCVPath = path.join(__dirname, "../../asset/img", getCVName(cv));
+      deleteCV(oldCVPath);
+    }
+
+    // Menghapus data talent
+    await Talent.destroy({
       where: {
-        id: req.params.id,
+        id: talentId,
       },
     });
 
     return res.status(200).send({
       msg: "deleted!",
     });
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({
+      msg: "Internal server error",
+    });
+  }
 };
-
-// exports.downloadPDF = async (req, res) => {
-//   try {
-//     const talentId = req.params.id;
-
-//     const talent = await Talent.findByPk(talentId);
-
-//     if (!talent || !talent.cv_file_path) {
-//       return res.status(404).send({
-//         msg: "CV file not found on server",
-//       });
-//     }
-
-//     const cvFilePath = talent.cv_file_path;
-//     const fileName = path.basename(cvFilePath);
-
-//     res.download(cvFilePath, fileName, (err) => {
-//       if (err) {
-//         console.error(err);
-//         res.status(500).send({
-//           msg: "Internal Server Error",
-//         });
-//       }
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send({
-//       msg: "Internal Server Error",
-//     });
-//   }
-// };
-
-// exports.downloadPDF = async (req, res) => {
-//   try {
-//     const talentId = req.params.id;
-
-//     const talent = await Talent.findByPk(talentId);
-
-//     if (!talent || !talent.cv_file_path) {
-//       return res.status(404).send({
-//         msg: "Talent or PDF file not found",
-//       });
-//     }
-
-//     const filePath = path.join(__dirname, "../../", talent.cv_file_path);
-
-//     res.sendFile(filePath);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send({
-//       msg: "Internal Server Error",
-//     });
-//   }
-// };
