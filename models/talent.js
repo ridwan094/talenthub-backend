@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Talent.belongsTo(models.seniority, {
+        foreignKey: "seniority_id",
+        as: "seniority",
+      });
+
       Talent.belongsToMany(models.Skills, {
         through: models.Talent_Skills,
         foreignKey: "talent_id",
@@ -25,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
       education: DataTypes.TEXT,
       cv_file_path: DataTypes.STRING,
       working_status: DataTypes.BOOLEAN,
+      seniority_id: DataTypes.INTEGER,
     },
     {
       sequelize,
