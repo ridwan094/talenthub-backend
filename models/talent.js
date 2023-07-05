@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       Talent.belongsToMany(models.Skills, {
         through: models.Talent_Skills,
         foreignKey: "talent_id",
+        as: "skill",
       });
     }
   }

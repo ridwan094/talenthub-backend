@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/talent");
 const { upload, fileUpload } = require("../middleware/uploadFile");
+const { authToken } = require("../middleware/auth");
+const { roleAuthorize } = require("../middleware/roleAuthorize");
 
 router.get("/", controller.get);
 router.get("/:id", controller.getById);

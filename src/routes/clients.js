@@ -1,13 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/clients");
+const { authToken } = require("../middleware/auth");
+const { roleAuthorize } = require("../middleware/roleAuthorize");
 
 // Menggunakan middleware
-router.get("/", controller.getAllClients);
-router.get("/:id", controller.getClientByID);
-router.post("/store", controller.createClient);
-router.put("/edit/:id", controller.updateClient);
-router.delete("/:id", controller.deleteClient);
-router.post("/upload", controller.uploadImage);
+router.get("/", authToken, controller.get);
+router.get("/:id", controller.getById);
+router.post("/store", controller.post);
+router.put("/edit/:id", controller.edit);
+router.delete("/:id", controller.delete);
+// router.post("/upload", controller.uploadImage);
 
 module.exports = router;

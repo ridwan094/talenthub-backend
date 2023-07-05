@@ -15,12 +15,14 @@ const auth = require("./src/routes/auth");
 const talent = require("./src/routes/talent");
 const skill = require("./src/routes/skill");
 const talent_skill = require("./src/routes/talentSkill");
+const seniority = require("./src/routes/seniority");
 
 app.use("/clients/", clients);
 app.use(`/auth`, auth);
 app.use("/talent", talent);
 app.use("/skill", skill);
 app.use("/talent_skill", talent_skill);
+app.use("/seniority", seniority);
 
 // Route utama
 // app.get("/", (req, res) => {
