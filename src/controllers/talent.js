@@ -1,6 +1,7 @@
 const { Talent, Skill } = require("../../models");
-const path = require("path");
 const fs = require("fs");
+const path = require("path");
+const axios = require("axios");
 // const PDFDocument = require("pdfkit");
 
 // Fungsi untuk menghapus file gambar
@@ -229,17 +230,19 @@ exports.download = async (req, res) => {
       });
     }
 
-    const filePath = talent.cv_file_path;
-    const fileName = path.basename(filePath);
+    console.log(talent);
+    const fileUrl = talent.cv_file_path;
+    const fileName = `CV_${talent.talent_name}.pdf`; // Nama file yang akan ditampilkan saat diunduh
 
-    res.download(filePath, fileName, (err) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send({
-          msg: "Error downloading the file",
-        });
-      }
+    const response = await axios({
+      url: fileUrl,
+      method: "GET",
+      responseType: "stream",
     });
+
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+    res.setHeader("Content-Type", response.headers["content-type"]);
+    response.data.pipe(res);
   } catch (err) {
     console.error(err);
     res.status(500).send({
