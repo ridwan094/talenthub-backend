@@ -1,11 +1,29 @@
 const multer = require("multer");
 
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, "asset/img");
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + "-" + file.originalname.replace(/\s/g, "/"));
+//   },
+// });
+
+// const filesStorage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, "asset/files");
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + "-" + file.originalname.replace(/\s/g, "/"));
+//   },
+// });
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "asset/img");
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname.replace(/\s/g, "/"));
+    cb(null, Date.now() + "-" + file.originalname.replace(/\s/g, "_"));
   },
 });
 
@@ -14,7 +32,7 @@ const filesStorage = multer.diskStorage({
     cb(null, "asset/files");
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname.replace(/\s/g, "/"));
+    cb(null, Date.now() + "-" + file.originalname.replace(/\s/g, "_"));
   },
 });
 

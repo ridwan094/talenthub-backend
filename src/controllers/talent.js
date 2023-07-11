@@ -93,7 +93,7 @@ exports.post = async (req, res) => {
         req.get("host") +
         "/" +
         cvFile.path.replace(/\\/g, "/");
-      // cv = cvFile.path.replace(/\\/g, "/");
+      // cv = cvFile.path.replace(/\\/g, "");
     }
 
     const save = await Talent.create({
@@ -122,7 +122,6 @@ exports.post = async (req, res) => {
 exports.edit = async (req, res) => {
   try {
     const reqBody = req.body;
-    const talentId = req.params.id;
 
     let image, cv;
 
@@ -133,24 +132,24 @@ exports.edit = async (req, res) => {
         "://" +
         req.get("host") +
         "/" +
-        talentImage.path.replace(/\\/g, "/");
+        talentImage.path.replace(/\\/g, "");
     }
 
     if (req.files && req.files.cv_file_path) {
-      const cvFile = req.files.cv_file_path[0];
+      const talentCv = req.files.cv_file_path[0];
       cv =
         req.protocol +
         "://" +
         req.get("host") +
         "/" +
-        cvFile.path.replace(/\\/g, "/");
+        talentCv.path.replace(/\\/g, "");
     }
 
-    const talent = await Talent.findByPk(talentId);
+    const talent = await Talent.findByPk(req.params.id);
 
     if (!talent) {
       return res.status(404).send({
-        msg: "Talent not found",
+        msg: "data not found!",
       });
     }
 
@@ -158,33 +157,33 @@ exports.edit = async (req, res) => {
     if (image && talent.talent_image_path) {
       const oldImagePath = path.join(
         __dirname,
-        "/asset/img",
+        "../../asset/img",
         getImageName(talent.talent_image_path)
       );
       if (fs.existsSync(oldImagePath)) {
         fs.unlinkSync(oldImagePath);
-        console.log("Gambar lama dihapus:", oldImagePath);
+        console.log("Gambar lama dihapus: ", oldImagePath);
       } else {
-        console.log("Gambar lama tidak ditemukan:", oldImagePath);
+        console.log("Gambar lama tidak ditemukan: ", oldImagePath);
       }
     }
 
-    // Menghapus CV lama jika ada CV baru yang diunggah
+    // menghapus cv lama jika ada cv baru yang diunggah
     if (cv && talent.cv_file_path) {
       const oldCVPath = path.join(
         __dirname,
-        "/asset/img",
+        "../../asset/img",
         getCVName(talent.cv_file_path)
       );
       if (fs.existsSync(oldCVPath)) {
         fs.unlinkSync(oldCVPath);
-        console.log("CV lama dihapus:", oldCVPath);
+        console.log("CV lama dihapus: ", oldCVPath);
       } else {
-        console.log("CV lama tidak ditemukan:", oldCVPath);
+        console.log("CV lama tidak ditemukan: ", oldCVPath);
       }
     }
 
-    // Update data talent
+    // update data
     talent.talent_name = reqBody.talent_name;
     talent.talent_image_path = image;
     talent.talent_summary = reqBody.talent_summary;
@@ -196,7 +195,7 @@ exports.edit = async (req, res) => {
     await talent.save();
 
     res.status(200).send({
-      msg: "OK",
+      msg: "OK!",
       data: talent,
     });
   } catch (err) {
@@ -232,7 +231,7 @@ exports.download = async (req, res) => {
 
     console.log(talent);
     const fileUrl = talent.cv_file_path;
-    const fileName = `CV_${talent.talent_name}.pdf`; // Nama file yang akan ditampilkan saat diunduh
+    const fileName = `CV_${talent.talent_name}.pdf`;
 
     const response = await axios({
       url: fileUrl,
